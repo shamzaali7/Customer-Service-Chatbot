@@ -1,6 +1,7 @@
 fastapi
 uvicorn
 transformers
-torch
 python-multipart
 numpy
+torch==2.2.0+cpu
+--extra-index-url https://download.pytorch.org/whl/cpu
