@@ -3,8 +3,8 @@ import torch
 from transformers import BertTokenizer, BertForSequenceClassification
 
 app = FastAPI()
-tokenizer = BertTokenizer.from_pretrained("./saved_model")
-model = BertForSequenceClassification.from_pretrained("./saved_model")
+tokenizer = BertTokenizer.from_pretrained("webhook/saved_model")
+model = BertForSequenceClassification.from_pretrained("webhook/saved_model")
 model.eval()
 
 id2label = model.config.id2label
