@@ -25,3 +25,4 @@ notebook/saved_model/
 
 # Webhook subfolder (no longer used; model lives at saved_model/ in root)
 webhook/
+*.command
