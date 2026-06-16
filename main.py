@@ -4,9 +4,9 @@ from transformers import BertTokenizer, BertForSequenceClassification
 
 app = FastAPI()
 
-MODEL_PATH = "saved_model"
-tokenizer = BertTokenizer.from_pretrained(MODEL_PATH)
-model = BertForSequenceClassification.from_pretrained(MODEL_PATH)
+HF_MODEL_ID = "Hamzaali7/customer-service-chatbot"
+tokenizer = BertTokenizer.from_pretrained(HF_MODEL_ID)
+model = BertForSequenceClassification.from_pretrained(HF_MODEL_ID)
 model.eval()
 
 id2label = model.config.id2label

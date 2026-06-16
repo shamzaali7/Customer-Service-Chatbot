@@ -2,11 +2,13 @@
 
 A BERT-based intent classification system for customer service automation. Fine-tuned on ~29,000 labeled utterances across 28 intents, served via a FastAPI webhook compatible with Dialogflow.
 
+**Model on HuggingFace Hub:** [Hamzaali7/customer-service-chatbot](https://huggingface.co/Hamzaali7/customer-service-chatbot)
+
 ---
 
 ## Overview
 
-This project fine-tunes `bert-base-uncased` to classify customer service queries into intents (e.g., `cancel_order`, `track_order`, `payment_issue`). The trained model is exposed through a webhook endpoint that Dialogflow calls to fulfill user requests in real time.
+This project fine-tunes `bert-base-uncased` to classify customer service queries into intents (e.g., `cancel_order`, `track_order`, `payment_issue`). The trained model is hosted on HuggingFace Hub and loaded at runtime by the webhook server.
 
 **Key stats:**
 - Training data: ~29,000 utterances, 28 intent classes
@@ -25,18 +27,13 @@ This project fine-tunes `bert-base-uncased` to classify customer service queries
 │   └── Bitext_Sample_Customer_Service_Training_Dataset.csv
 ├── notebook/
 │   └── Final_Project_NLP_Customer_Service_Chatbot.ipynb  # Training notebook
-├── saved_model/                   # Fine-tuned BERT model (tracked via Git LFS)
-│   ├── config.json
-│   ├── model.safetensors          # ~418 MB — stored in Git LFS
-│   ├── special_tokens_map.json
-│   ├── tokenizer_config.json
-│   └── vocab.txt
 ├── main.py                        # FastAPI webhook server
 ├── requirements.txt               # Deployment dependencies
 ├── Procfile                       # Heroku process definition
-├── runtime.txt                    # Heroku Python version
-└── .gitattributes                 # Git LFS config for model weights
+└── runtime.txt                    # Heroku Python version
 ```
+
+The trained model is not stored in this repository — it is loaded automatically from HuggingFace Hub ([Hamzaali7/customer-service-chatbot](https://huggingface.co/Hamzaali7/customer-service-chatbot)) at startup.
 
 ---
 
@@ -45,14 +42,12 @@ This project fine-tunes `bert-base-uncased` to classify customer service queries
 ### Prerequisites
 
 - Python 3.12
-- Git LFS — required to pull model weights (`git lfs install`)
 
 ### Clone and install
 
 ```bash
 git clone git@github.com:shamzaali7/Customer-Service-Chatbot.git
 cd Customer-Service-Chatbot
-git lfs pull          # downloads saved_model/model.safetensors (~418 MB)
 
 python -m venv venv
 source venv/bin/activate   # Windows: venv\Scripts\activate
@@ -64,6 +59,8 @@ pip install -r requirements.txt
 ```bash
 uvicorn main:app --reload
 ```
+
+The model (~418 MB) downloads automatically from HuggingFace Hub on first run and is cached locally.
 
 The webhook is available at `http://localhost:8000/webhook`.
 A health check is available at `http://localhost:8000/health`.
@@ -79,7 +76,7 @@ cd notebook
 jupyter lab Final_Project_NLP_Customer_Service_Chatbot.ipynb
 ```
 
-If `saved_model/` already exists at the project root, the notebook loads the pre-trained model and skips training. Otherwise it trains from scratch (~3 epochs). After training, the model is saved back to `saved_model/`.
+If a `saved_model/` directory exists at the project root, the notebook loads it and skips training. Otherwise it trains from scratch (~3 epochs on the full dataset) and saves the model to `saved_model/`.
 
 **Additional dependencies for training:**
 
@@ -134,7 +131,7 @@ heroku buildpacks:set heroku/python
 git push heroku main
 ```
 
-`runtime.txt` pins Python 3.12. The `Procfile` starts Uvicorn on Heroku's dynamic `$PORT`.
+`runtime.txt` pins Python 3.12. The `Procfile` starts Uvicorn on Heroku's dynamic `$PORT`. The model is downloaded from HuggingFace Hub on dyno startup.
 
 > `requirements.txt` uses `torch==2.9.1+cpu` with PyTorch's CPU wheel index — this keeps the slug size manageable and avoids GPU dependencies on Heroku.
 
@@ -154,4 +151,4 @@ Both datasets are from [Bitext](https://www.bitext.com/) and cover common e-comm
 | Training | HuggingFace `Trainer` API |
 | Inference server | FastAPI + Uvicorn |
 | Deployment | Heroku |
-| Model storage | Git LFS |
+| Model hosting | HuggingFace Hub |
